@@ -12,7 +12,12 @@ import MatchScore from '@/components/match/MatchScore';
 import VerificationBadges from '@/components/match/VerificationBadges';
 import {
   REGION_LABELS, EDUCATION_LABELS, INCOME_LABELS, HOBBY_LABELS, JOB_CATEGORY_LABELS,
+  PET_TYPE_LABELS,
 } from '@/lib/types';
+import {
+  inferFaceProfile, getFaceReadingScore, getFaceReadingReport,
+  IMPRESSION_LABELS, FaceImpression,
+} from '@/lib/faceReading';
 
 export default function MatchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -130,6 +135,68 @@ export default function MatchDetailScreen() {
           } />
           {targetUser.remarriageInfo.hasChildren && (
             <DetailRow label="양육권" value={targetUser.remarriageInfo.hasCustody ? '있음' : '없음'} />
+          )}
+        </View>
+      )}
+
+      {/* 관상 궁합 */}
+      {targetUser.faceImpression && currentUser.faceImpression && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>관상 궁합</Text>
+          {(() => {
+            const f1 = inferFaceProfile(currentUser.faceImpression as FaceImpression);
+            const f2 = inferFaceProfile(targetUser.faceImpression as FaceImpression);
+            const faceScore = getFaceReadingScore(f1, f2);
+            const reports = getFaceReadingReport(f1, f2);
+            return (
+              <View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 13, color: COLORS.textSecondary }}>나의 인상</Text>
+                    <Text style={{ fontSize: 15, fontWeight: '600', color: COLORS.text }}>
+                      {IMPRESSION_LABELS[currentUser.faceImpression as FaceImpression]}
+                    </Text>
+                  </View>
+                  <View style={{
+                    backgroundColor: faceScore >= 70 ? COLORS.success : faceScore >= 50 ? COLORS.secondary : COLORS.warning,
+                    paddingHorizontal: 14, paddingVertical: 6, borderRadius: 16,
+                  }}>
+                    <Text style={{ color: COLORS.white, fontWeight: 'bold', fontSize: 16 }}>
+                      {faceScore}점
+                    </Text>
+                  </View>
+                  <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                    <Text style={{ fontSize: 13, color: COLORS.textSecondary }}>상대 인상</Text>
+                    <Text style={{ fontSize: 15, fontWeight: '600', color: COLORS.text }}>
+                      {IMPRESSION_LABELS[targetUser.faceImpression as FaceImpression]}
+                    </Text>
+                  </View>
+                </View>
+                {reports.map((r, i) => (
+                  <Text key={i} style={{ fontSize: 13, color: COLORS.textSecondary, lineHeight: 20, marginBottom: 4 }}>
+                    {r}
+                  </Text>
+                ))}
+              </View>
+            );
+          })()}
+        </View>
+      )}
+
+      {/* 반려동물 */}
+      {(targetUser.pet.hasPet || currentUser.pet.hasPet) && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>반려동물</Text>
+          {targetUser.pet.hasPet ? (
+            <View>
+              <DetailRow label="종류" value={PET_TYPE_LABELS[targetUser.pet.petType]} />
+              <DetailRow label="이름" value={targetUser.pet.petName || '-'} />
+              {targetUser.pet.breed && <DetailRow label="품종" value={targetUser.pet.breed} />}
+            </View>
+          ) : (
+            <Text style={{ color: COLORS.textSecondary }}>
+              반려동물이 없지만 {targetUser.pet.petFriendly ? '반려동물을 좋아합니다' : '반려동물에 관심이 없습니다'}
+            </Text>
           )}
         </View>
       )}

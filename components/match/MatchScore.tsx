@@ -18,6 +18,7 @@ const LABELS: Record<string, string> = {
   lifestyle: '생활패턴',
   pet: '반려동물 궁합',
   saju: '사주 궁합',
+  faceReading: '관상 궁합',
   verification: '인증 신뢰도',
   remarriage: '재혼 호환성',
 };

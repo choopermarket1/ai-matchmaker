@@ -119,6 +119,38 @@ export const FIVE_ELEMENT_COMPAT: Record<string, { good: string[]; bad: string[]
   '수': { good: ['금', '목'], bad: ['토'] },
 };
 
+// 예술 취향 (음악/미술)
+export type MusicGenre =
+  | 'kpop' | 'pop' | 'hiphop' | 'rnb' | 'ballad' | 'indie'
+  | 'rock' | 'jazz' | 'classical' | 'edm' | 'folk' | 'trot';
+
+export type ArtStyle =
+  | 'modern' | 'classical' | 'abstract' | 'photography'
+  | 'illustration' | 'sculpture' | 'none';
+
+export interface FavoriteSong {
+  title: string;
+  artist: string;
+}
+
+export interface ArtTaste {
+  favoriteGenres: MusicGenre[];       // 좋아하는 음악 장르 (복수)
+  top3Songs: FavoriteSong[];          // 가장 좋아하는 노래 베스트 3
+  artStyle: ArtStyle;                 // 미술 취향
+  concertFrequency: 'never' | 'rarely' | 'sometimes' | 'often'; // 공연/전시 관람 빈도
+}
+
+export const MUSIC_GENRE_LABELS: Record<MusicGenre, string> = {
+  kpop: 'K-POP', pop: 'POP', hiphop: '힙합', rnb: 'R&B',
+  ballad: '발라드', indie: '인디', rock: '록', jazz: '재즈',
+  classical: '클래식', edm: 'EDM', folk: '포크', trot: '트로트',
+};
+
+export const ART_STYLE_LABELS: Record<ArtStyle, string> = {
+  modern: '현대미술', classical: '고전미술', abstract: '추상화',
+  photography: '사진예술', illustration: '일러스트', sculpture: '조각', none: '관심없음',
+};
+
 // 직업군 분류
 export type JobCategory =
   | 'it_tech'       // IT/기술
@@ -190,6 +222,9 @@ export interface UserProfile {
   smoking: SmokingStatus;
   pet: PetInfo;
   birthInfo: BirthInfo;
+  faceImpression: string;
+  photoVisibility: 'public' | 'match_only' | 'private';
+  artTaste: ArtTaste;
   snsProfiles: SNSProfile[];
   matchType: MatchType;
   maritalStatus: MaritalStatus;
