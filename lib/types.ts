@@ -332,6 +332,8 @@ export interface UserProfile {
   photoVisibility: 'public' | 'match_only' | 'private';
   artTaste: ArtTaste;
   belief: BeliefProfile;
+  hometown: string;       // 고향 (예: '서울', '부산', '제주')
+  country: Country;       // 국가 (2차 해외확장용)
   snsProfiles: SNSProfile[];
   matchType: MatchType;
   maritalStatus: MaritalStatus;
