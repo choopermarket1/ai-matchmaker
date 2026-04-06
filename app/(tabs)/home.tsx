@@ -9,8 +9,9 @@ import { useStore } from '@/stores/useStore';
 import ProfileCard from '@/components/match/ProfileCard';
 
 export default function HomeScreen() {
-  const { matches, likedUsers, likeUser, unlikeUser, matchType, setMatchType } = useStore();
+  const { matches, likedUsers, likeUser, unlikeUser, matchType, setMatchType, getRemainingLikes, membership } = useStore();
   const [showFilter, setShowFilter] = useState(false);
+  const [alert, setAlert] = useState('');
 
   return (
     <View style={styles.container}>
@@ -50,10 +51,21 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Match Count */}
+      {/* Alert */}
+      {alert ? (
+        <View style={{ backgroundColor: COLORS.primary, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <FontAwesome name="lock" size={14} color={COLORS.white} />
+          <Text style={{ flex: 1, color: COLORS.white, fontSize: SIZES.sm }}>{alert}</Text>
+        </View>
+      ) : null}
+
+      {/* Match Count + Remaining Likes */}
       <View style={styles.countRow}>
         <Text style={styles.countText}>
           추천 매칭 <Text style={styles.countNumber}>{matches.length}명</Text>
+        </Text>
+        <Text style={{ fontSize: SIZES.xs, color: COLORS.textLight }}>
+          남은 좋아요: {getRemainingLikes()}회
         </Text>
       </View>
 
@@ -84,7 +96,11 @@ export default function HomeScreen() {
                 if (likedUsers.includes(match.user.id)) {
                   unlikeUser(match.user.id);
                 } else {
-                  likeUser(match.user.id);
+                  const result = likeUser(match.user.id);
+                  if (!result.success && result.message) {
+                    setAlert(result.message);
+                    setTimeout(() => setAlert(''), 4000);
+                  }
                 }
               }}
             />

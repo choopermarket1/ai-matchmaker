@@ -12,9 +12,10 @@ import { getConversationStarters } from '@/lib/aiMatching';
 
 export default function ChatRoomScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { chatRooms, currentUser, sendMessage } = useStore();
+  const { chatRooms, currentUser, sendMessage, getRemainingMessages, membership } = useStore();
   const [text, setText] = useState('');
   const [showCoaching, setShowCoaching] = useState(false);
+  const [limitAlert, setLimitAlert] = useState('');
   const scrollRef = useRef<ScrollView>(null);
 
   const room = chatRooms.find((r) => r.id === id);
@@ -29,10 +30,18 @@ export default function ChatRoomScreen() {
     );
   }
 
+  const remaining = getRemainingMessages();
+
   const handleSend = () => {
     if (!text.trim()) return;
-    sendMessage(room.id, text);
+    const result = sendMessage(room.id, text);
+    if (!result.success && result.message) {
+      setLimitAlert(result.message);
+      setTimeout(() => setLimitAlert(''), 5000);
+      return;
+    }
     setText('');
+    setLimitAlert('');
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
   };
 
@@ -80,6 +89,26 @@ export default function ChatRoomScreen() {
           );
         })}
       </ScrollView>
+
+      {/* Message Limit Alert */}
+      {limitAlert ? (
+        <View style={styles.limitAlert}>
+          <FontAwesome name="lock" size={14} color={COLORS.white} />
+          <Text style={styles.limitAlertText}>{limitAlert}</Text>
+          <TouchableOpacity style={styles.upgradeButton}>
+            <Text style={styles.upgradeButtonText}>업그레이드</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
+
+      {/* Remaining Messages Counter */}
+      {membership === 'free' && remaining <= 5 && remaining > 0 && (
+        <View style={styles.remainingBar}>
+          <Text style={styles.remainingText}>
+            오늘 남은 메시지: {remaining}건 (무료 하루 5건)
+          </Text>
+        </View>
+      )}
 
       {/* AI Coaching Panel */}
       {showCoaching && starters.length > 0 && (
@@ -233,6 +262,28 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     backgroundColor: COLORS.textLight,
+  },
+  limitAlert: {
+    backgroundColor: COLORS.primary, padding: 12,
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    borderTopWidth: 1, borderTopColor: COLORS.border,
+  },
+  limitAlertText: {
+    flex: 1, color: COLORS.white, fontSize: SIZES.sm, lineHeight: 16,
+  },
+  upgradeButton: {
+    backgroundColor: COLORS.white, paddingHorizontal: 12, paddingVertical: 6,
+    borderRadius: 12,
+  },
+  upgradeButtonText: {
+    color: COLORS.primary, fontSize: SIZES.sm, fontWeight: 'bold',
+  },
+  remainingBar: {
+    backgroundColor: COLORS.warning + '20', paddingVertical: 6, paddingHorizontal: 12,
+    borderTopWidth: 1, borderTopColor: COLORS.warning + '30',
+  },
+  remainingText: {
+    fontSize: SIZES.xs, color: COLORS.warning, textAlign: 'center', fontWeight: '500',
   },
   coachButton: {
     width: 40, height: 40, borderRadius: 20,
