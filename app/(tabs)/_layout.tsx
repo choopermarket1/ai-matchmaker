@@ -7,7 +7,7 @@ function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
 }) {
-  return <FontAwesome size={24} style={{ marginBottom: -3 }} {...props} />;
+  return <FontAwesome size={22} style={{ marginBottom: -3 }} {...props} />;
 }
 
 export default function TabLayout() {
@@ -38,10 +38,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="matches"
+        name="ai-chat"
         options={{
-          title: '좋아요',
-          tabBarIcon: ({ color }) => <TabBarIcon name="star" color={color} />,
+          title: 'AI 추천',
+          tabBarIcon: ({ color }) => <TabBarIcon name="magic" color={color} />,
+          headerTitle: 'AI 이상형 매칭',
+          headerTitleStyle: { fontWeight: 'bold', color: COLORS.primary },
         }}
       />
       <Tabs.Screen
@@ -52,15 +54,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="stats"
+        options={{
+          title: '통계',
+          tabBarIcon: ({ color }) => <TabBarIcon name="bar-chart" color={color} />,
+          headerTitle: '매칭 성공률',
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: '내 정보',
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />
-      {/* Hide the default tabs */}
+      {/* Hide unused tabs */}
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="two" options={{ href: null }} />
+      <Tabs.Screen name="matches" options={{ href: null }} />
     </Tabs>
   );
 }

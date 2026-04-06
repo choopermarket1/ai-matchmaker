@@ -5,16 +5,21 @@ import {
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
-import { COLORS, SIZES } from '@/constants/theme';
+import { COLORS, SIZES, SHADOWS } from '@/constants/theme';
 import { useStore } from '@/stores/useStore';
+import { mockUsers } from '@/lib/mockData';
+import { getConversationStarters } from '@/lib/aiMatching';
 
 export default function ChatRoomScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { chatRooms, currentUser, sendMessage } = useStore();
   const [text, setText] = useState('');
+  const [showCoaching, setShowCoaching] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   const room = chatRooms.find((r) => r.id === id);
+  const partner = room ? mockUsers.find((u) => u.id === room.partnerId) : null;
+  const starters = (partner && currentUser) ? getConversationStarters(partner, currentUser) : [];
 
   if (!room || !currentUser) {
     return (
@@ -76,7 +81,40 @@ export default function ChatRoomScreen() {
         })}
       </ScrollView>
 
+      {/* AI Coaching Panel */}
+      {showCoaching && starters.length > 0 && (
+        <View style={styles.coachingPanel}>
+          <View style={styles.coachingHeader}>
+            <FontAwesome name="magic" size={14} color={COLORS.primary} />
+            <Text style={styles.coachingTitle}>AI 대화 코칭</Text>
+            <TouchableOpacity onPress={() => setShowCoaching(false)}>
+              <FontAwesome name="times" size={16} color={COLORS.textLight} />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.coachingDesc}>이 메시지로 대화를 시작해보세요:</Text>
+          {starters.map((s, i) => (
+            <TouchableOpacity
+              key={i}
+              style={styles.starterButton}
+              onPress={() => { setText(s); setShowCoaching(false); }}
+            >
+              <Text style={styles.starterText}>{s}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
       <View style={styles.inputBar}>
+        <TouchableOpacity
+          style={styles.coachButton}
+          onPress={() => setShowCoaching(!showCoaching)}
+        >
+          <FontAwesome
+            name="magic"
+            size={18}
+            color={showCoaching ? COLORS.primary : COLORS.textLight}
+          />
+        </TouchableOpacity>
         <TextInput
           style={styles.input}
           value={text}
@@ -195,5 +233,30 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     backgroundColor: COLORS.textLight,
+  },
+  coachButton: {
+    width: 40, height: 40, borderRadius: 20,
+    justifyContent: 'center', alignItems: 'center',
+  },
+  coachingPanel: {
+    backgroundColor: COLORS.white, padding: 12,
+    borderTopWidth: 1, borderTopColor: COLORS.border,
+  },
+  coachingHeader: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6,
+  },
+  coachingTitle: {
+    flex: 1, fontSize: SIZES.md, fontWeight: '600', color: COLORS.primary,
+  },
+  coachingDesc: {
+    fontSize: SIZES.sm, color: COLORS.textSecondary, marginBottom: 8,
+  },
+  starterButton: {
+    backgroundColor: COLORS.primary + '10', padding: 10,
+    borderRadius: SIZES.radius, marginBottom: 6,
+    borderWidth: 1, borderColor: COLORS.primary + '20',
+  },
+  starterText: {
+    fontSize: SIZES.md, color: COLORS.text, lineHeight: 18,
   },
 });

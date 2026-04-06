@@ -206,6 +206,69 @@ export const VERIFICATION_LABELS: Record<string, string> = {
   income: '소득인증',
 };
 
+// 멤버십 등급
+export type MembershipTier = 'free' | 'basic' | 'premium' | 'vip';
+
+export const MEMBERSHIP_INFO: Record<MembershipTier, {
+  name: string;
+  price: string;
+  color: string;
+  features: string[];
+  verification: string[];
+}> = {
+  free: {
+    name: '무료 회원',
+    price: '무료',
+    color: '#B2BEC3',
+    features: [
+      '하루 5명 프로필 열람',
+      '기본 매칭 점수 확인',
+      '좋아요 하루 3회',
+    ],
+    verification: ['휴대폰 본인인증', '사진 인증'],
+  },
+  basic: {
+    name: '베이직',
+    price: '월 19,900원',
+    color: '#4ECDC4',
+    features: [
+      '하루 20명 프로필 열람',
+      '상세 매칭 점수 확인',
+      '좋아요 하루 10회',
+      'AI 이상형 매칭 하루 3회',
+    ],
+    verification: ['휴대폰 본인인증', '사진 인증', '미혼 확인'],
+  },
+  premium: {
+    name: '프리미엄',
+    price: '월 39,900원',
+    color: '#FF6B6B',
+    features: [
+      '무제한 프로필 열람',
+      '전체 매칭 분석 리포트',
+      '무제한 좋아요',
+      'AI 이상형 매칭 무제한',
+      'AI 대화 코칭',
+      '누가 나를 좋아했는지 확인',
+    ],
+    verification: ['휴대폰 본인인증', '사진 인증', '미혼 확인', '재직 인증', '학력 인증'],
+  },
+  vip: {
+    name: 'VIP',
+    price: '월 59,900원',
+    color: '#A29BFE',
+    features: [
+      '프리미엄 전체 기능',
+      '소득 인증 배지',
+      '프로필 상단 노출',
+      '전담 AI 매칭 컨설턴트',
+      '재혼 전용 매칭풀 접근',
+      '매칭 성공률 상세 분석',
+    ],
+    verification: ['6단계 전체 인증 완료', '소득 인증 포함'],
+  },
+};
+
 // 결혼 커플 통계 기반 직업군 궁합 데이터 (통계청 혼인통계 참고)
 // 실제 데이터: 동일/유사 직업군 커플이 결혼 유지율이 높음
 export const JOB_COMPATIBILITY: Record<string, JobCategory[]> = {
