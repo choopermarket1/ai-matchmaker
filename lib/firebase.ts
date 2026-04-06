@@ -40,12 +40,13 @@ import {
 // ============================================
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.firebasestorage.app",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
+  apiKey: "AIzaSyDCE-xzTWRYzpyHSpCah9JshZjQ66DkdfQ",
+  authDomain: "couple-f08ee.firebaseapp.com",
+  projectId: "couple-f08ee",
+  storageBucket: "couple-f08ee.firebasestorage.app",
+  messagingSenderId: "30116689025",
+  appId: "1:30116689025:web:1c4c43cfd8e85391cd0980",
+  measurementId: "G-PW5GWKQ200",
 };
 
 // Firebase가 설정되었는지 확인
