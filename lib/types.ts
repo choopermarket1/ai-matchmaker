@@ -119,6 +119,112 @@ export const FIVE_ELEMENT_COMPAT: Record<string, { good: string[]; bad: string[]
   '수': { good: ['금', '목'], bad: ['토'] },
 };
 
+// 국가별 종교/정치 설정
+export type Country = 'KR' | 'US' | 'JP' | 'CN' | 'GB' | 'DE' | 'FR' | 'TH' | 'VN' | 'ID' | 'PH' | 'global';
+
+export type Religion =
+  | 'none' | 'christian' | 'catholic' | 'buddhist'
+  | 'muslim' | 'hindu' | 'jewish' | 'shinto'
+  | 'confucian' | 'other';
+
+export type ReligionImportance = 'not_important' | 'somewhat' | 'important' | 'must_match';
+
+// 나라별 종교 옵션 (해당 국가에서 흔한 종교만 표시)
+export const RELIGION_BY_COUNTRY: Record<Country, Religion[]> = {
+  KR: ['none', 'christian', 'catholic', 'buddhist', 'other'],
+  US: ['none', 'christian', 'catholic', 'jewish', 'muslim', 'buddhist', 'hindu', 'other'],
+  JP: ['none', 'buddhist', 'shinto', 'christian', 'other'],
+  CN: ['none', 'buddhist', 'confucian', 'christian', 'muslim', 'other'],
+  GB: ['none', 'christian', 'catholic', 'muslim', 'hindu', 'jewish', 'other'],
+  DE: ['none', 'christian', 'catholic', 'muslim', 'jewish', 'other'],
+  FR: ['none', 'catholic', 'muslim', 'christian', 'jewish', 'buddhist', 'other'],
+  TH: ['buddhist', 'muslim', 'christian', 'none', 'other'],
+  VN: ['none', 'buddhist', 'catholic', 'confucian', 'other'],
+  ID: ['muslim', 'christian', 'catholic', 'hindu', 'buddhist', 'other'],
+  PH: ['catholic', 'christian', 'muslim', 'none', 'other'],
+  global: ['none', 'christian', 'catholic', 'buddhist', 'muslim', 'hindu', 'jewish', 'shinto', 'confucian', 'other'],
+};
+
+export const RELIGION_LABELS: Record<Religion, string> = {
+  none: '무교', christian: '기독교(개신교)', catholic: '천주교',
+  buddhist: '불교', muslim: '이슬람', hindu: '힌두교',
+  jewish: '유대교', shinto: '신도', confucian: '유교', other: '기타',
+};
+
+export const RELIGION_LABELS_EN: Record<Religion, string> = {
+  none: 'No religion', christian: 'Protestant', catholic: 'Catholic',
+  buddhist: 'Buddhist', muslim: 'Muslim', hindu: 'Hindu',
+  jewish: 'Jewish', shinto: 'Shinto', confucian: 'Confucian', other: 'Other',
+};
+
+// 정치 성향
+export type PoliticalLeaning =
+  | 'very_progressive' | 'progressive' | 'moderate'
+  | 'conservative' | 'very_conservative' | 'no_interest';
+
+export type PoliticalImportance = 'not_important' | 'somewhat' | 'important' | 'must_match';
+
+// 나라별 정치 레이블 (각 나라의 정치 스펙트럼에 맞게)
+export const POLITICAL_LABELS_BY_COUNTRY: Record<Country, Record<PoliticalLeaning, string>> = {
+  KR: {
+    very_progressive: '매우 진보', progressive: '진보', moderate: '중도',
+    conservative: '보수', very_conservative: '매우 보수', no_interest: '관심없음',
+  },
+  US: {
+    very_progressive: 'Very Liberal', progressive: 'Liberal', moderate: 'Moderate',
+    conservative: 'Conservative', very_conservative: 'Very Conservative', no_interest: 'Not Political',
+  },
+  JP: {
+    very_progressive: '革新的', progressive: 'リベラル', moderate: '中道',
+    conservative: '保守', very_conservative: '右翼', no_interest: '関心なし',
+  },
+  CN: {
+    very_progressive: '开放派', progressive: '改革派', moderate: '中间派',
+    conservative: '保守派', very_conservative: '传统派', no_interest: '不关心',
+  },
+  GB: {
+    very_progressive: 'Very Left', progressive: 'Left/Labour', moderate: 'Centre',
+    conservative: 'Right/Tory', very_conservative: 'Far Right', no_interest: 'Not Political',
+  },
+  DE: {
+    very_progressive: 'Sehr Links', progressive: 'Links/Grün', moderate: 'Mitte',
+    conservative: 'Konservativ/CDU', very_conservative: 'Sehr Rechts', no_interest: 'Unpolitisch',
+  },
+  FR: {
+    very_progressive: 'Très à gauche', progressive: 'Gauche', moderate: 'Centre',
+    conservative: 'Droite', very_conservative: 'Extrême droite', no_interest: 'Apolitique',
+  },
+  TH: {
+    very_progressive: 'ก้าวหน้ามาก', progressive: 'ก้าวหน้า', moderate: 'กลาง',
+    conservative: 'อนุรักษ์', very_conservative: 'อนุรักษ์มาก', no_interest: 'ไม่สนใจ',
+  },
+  VN: {
+    very_progressive: 'Rất cấp tiến', progressive: 'Cấp tiến', moderate: 'Trung lập',
+    conservative: 'Bảo thủ', very_conservative: 'Rất bảo thủ', no_interest: 'Không quan tâm',
+  },
+  ID: {
+    very_progressive: 'Sangat Progresif', progressive: 'Progresif', moderate: 'Moderat',
+    conservative: 'Konservatif', very_conservative: 'Sangat Konservatif', no_interest: 'Tidak Peduli',
+  },
+  PH: {
+    very_progressive: 'Very Liberal', progressive: 'Liberal', moderate: 'Moderate',
+    conservative: 'Conservative', very_conservative: 'Very Conservative', no_interest: 'Not Political',
+  },
+  global: {
+    very_progressive: 'Very Progressive', progressive: 'Progressive', moderate: 'Moderate',
+    conservative: 'Conservative', very_conservative: 'Very Conservative', no_interest: 'Not Political',
+  },
+};
+
+export const POLITICAL_LABELS = POLITICAL_LABELS_BY_COUNTRY.KR; // 기본 한국
+
+export interface BeliefProfile {
+  religion: Religion;
+  religionImportance: ReligionImportance;
+  political: PoliticalLeaning;
+  politicalImportance: PoliticalImportance;
+}
+
 // 예술 취향 (음악/미술)
 export type MusicGenre =
   | 'kpop' | 'pop' | 'hiphop' | 'rnb' | 'ballad' | 'indie'
@@ -225,6 +331,7 @@ export interface UserProfile {
   faceImpression: string;
   photoVisibility: 'public' | 'match_only' | 'private';
   artTaste: ArtTaste;
+  belief: BeliefProfile;
   snsProfiles: SNSProfile[];
   matchType: MatchType;
   maritalStatus: MaritalStatus;
