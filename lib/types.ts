@@ -41,6 +41,84 @@ export type Hobby =
 export type DrinkingLevel = 'none' | 'sometimes' | 'often';
 export type SmokingStatus = 'no' | 'yes' | 'quit';
 
+// 반려동물 정보
+export type PetType = 'dog' | 'cat' | 'both' | 'other' | 'none';
+export type PetSize = 'small' | 'medium' | 'large';       // 소형/중형/대형
+export type PetTemperament = 'calm' | 'active' | 'playful' | 'independent'; // 차분/활발/장난/독립
+
+export interface PetInfo {
+  hasPet: boolean;
+  petType: PetType;
+  petName?: string;
+  breed?: string;
+  petSize?: PetSize;
+  petTemperament?: PetTemperament;
+  petFriendly: boolean;
+}
+
+export const PET_TYPE_LABELS: Record<PetType, string> = {
+  dog: '강아지', cat: '고양이', both: '강아지+고양이',
+  other: '기타', none: '없음',
+};
+
+export const PET_SIZE_LABELS: Record<PetSize, string> = {
+  small: '소형', medium: '중형', large: '대형',
+};
+
+export const PET_TEMPERAMENT_LABELS: Record<PetTemperament, string> = {
+  calm: '차분한', active: '활발한', playful: '장난꾸러기', independent: '독립적인',
+};
+
+// 사주/생년월일 정보
+export type CalendarType = 'solar' | 'lunar'; // 양력/음력
+
+export interface BirthInfo {
+  year: number;
+  month: number;
+  day: number;
+  calendarType: CalendarType;
+  birthHour?: number;        // 태어난 시 (0~23, 선택사항이지만 권고)
+  zodiacAnimal?: string;     // 띠 (자동 계산)
+  fiveElement?: string;      // 오행 (자동 계산)
+}
+
+// 띠 계산
+export function getZodiacAnimal(year: number): string {
+  const animals = ['원숭이','닭','개','돼지','쥐','소','호랑이','토끼','용','뱀','말','양'];
+  return animals[year % 12];
+}
+
+// 오행 계산
+export function getFiveElement(year: number): string {
+  const elements = ['금','금','수','수','목','목','화','화','토','토'];
+  return elements[year % 10];
+}
+
+// 사주 궁합표 (띠 기반)
+export const ZODIAC_COMPATIBILITY: Record<string, string[]> = {
+  '쥐': ['용', '원숭이', '소'],
+  '소': ['뱀', '닭', '쥐'],
+  '호랑이': ['말', '개', '돼지'],
+  '토끼': ['양', '돼지', '개'],
+  '용': ['쥐', '원숭이', '닭'],
+  '뱀': ['소', '닭', '원숭이'],
+  '말': ['호랑이', '양', '개'],
+  '양': ['토끼', '말', '돼지'],
+  '원숭이': ['쥐', '용', '뱀'],
+  '닭': ['소', '뱀', '용'],
+  '개': ['호랑이', '토끼', '말'],
+  '돼지': ['토끼', '양', '호랑이'],
+};
+
+// 오행 상생/상극
+export const FIVE_ELEMENT_COMPAT: Record<string, { good: string[]; bad: string[] }> = {
+  '목': { good: ['수', '화'], bad: ['금'] },
+  '화': { good: ['목', '토'], bad: ['수'] },
+  '토': { good: ['화', '금'], bad: ['목'] },
+  '금': { good: ['토', '수'], bad: ['화'] },
+  '수': { good: ['금', '목'], bad: ['토'] },
+};
+
 // 직업군 분류
 export type JobCategory =
   | 'it_tech'       // IT/기술
@@ -110,6 +188,8 @@ export interface UserProfile {
   introduction: string;
   drinking: DrinkingLevel;
   smoking: SmokingStatus;
+  pet: PetInfo;
+  birthInfo: BirthInfo;
   snsProfiles: SNSProfile[];
   matchType: MatchType;
   maritalStatus: MaritalStatus;
@@ -132,6 +212,8 @@ export interface MatchResult {
     income: number;
     age: number;
     lifestyle: number;
+    pet: number;
+    saju: number;
     verification: number;
     remarriage?: number;
     [key: string]: number | undefined;

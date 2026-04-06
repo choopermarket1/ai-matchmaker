@@ -9,6 +9,12 @@ import {
   SmokingStatus,
   JobCategory,
   JOB_COMPATIBILITY,
+  PetInfo,
+  PetSize,
+  PetTemperament,
+  BirthInfo,
+  ZODIAC_COMPATIBILITY,
+  FIVE_ELEMENT_COMPAT,
 } from './types';
 
 // ===== MBTI 궁합표 (0~1 점수) =====
@@ -123,6 +129,87 @@ function getLifestyleScore(
   return (drinkScore + smokeScore) / 2;
 }
 
+// ===== 사주 궁합 (띠 + 오행) =====
+function getSajuScore(b1: BirthInfo, b2: BirthInfo): number {
+  let score = 0.5; // 기본
+
+  const z1 = b1.zodiacAnimal;
+  const z2 = b2.zodiacAnimal;
+  const e1 = b1.fiveElement;
+  const e2 = b2.fiveElement;
+
+  // 띠 궁합
+  if (z1 && z2) {
+    const goodMatch = ZODIAC_COMPATIBILITY[z1] || [];
+    if (goodMatch.includes(z2)) score += 0.25; // 삼합/육합
+    else if (z1 === z2) score += 0.1; // 같은 띠
+  }
+
+  // 오행 상생/상극
+  if (e1 && e2) {
+    const compat = FIVE_ELEMENT_COMPAT[e1];
+    if (compat) {
+      if (compat.good.includes(e2)) score += 0.2;  // 상생
+      else if (compat.bad.includes(e2)) score -= 0.15; // 상극
+      else score += 0.05; // 중립
+    }
+  }
+
+  // 시간대 궁합 보너스 (둘 다 입력한 경우)
+  if (b1.birthHour !== undefined && b2.birthHour !== undefined) {
+    score += 0.05; // 시간 입력 보너스
+  }
+
+  return Math.max(0, Math.min(score, 1.0));
+}
+
+// ===== 반려동물 궁합 =====
+function getPetScore(p1: PetInfo, p2: PetInfo): number {
+  // 둘 다 반려동물 없으면 중립
+  if (!p1.hasPet && !p2.hasPet) return 0.6;
+
+  // 한 명만 있고 상대가 petFriendly 아니면 낮은 점수
+  if (p1.hasPet && !p2.petFriendly) return 0.1;
+  if (p2.hasPet && !p1.petFriendly) return 0.1;
+
+  // 한 명만 있고 상대가 petFriendly면 괜찮음
+  if (p1.hasPet !== p2.hasPet) {
+    return (p1.petFriendly && p2.petFriendly) ? 0.7 : 0.4;
+  }
+
+  // 둘 다 반려동물 있음 -> 상세 궁합
+  let score = 0.6;
+
+  // 같은 종류 (강아지끼리, 고양이끼리)
+  if (p1.petType === p2.petType) score += 0.15;
+  else if (p1.petType === 'both' || p2.petType === 'both') score += 0.1;
+
+  // 비슷한 사이즈
+  if (p1.petSize && p2.petSize) {
+    if (p1.petSize === p2.petSize) score += 0.15;
+    else {
+      const sizeRank: Record<PetSize, number> = { small: 1, medium: 2, large: 3 };
+      const diff = Math.abs(sizeRank[p1.petSize] - sizeRank[p2.petSize]);
+      score += diff === 1 ? 0.08 : 0.0; // 1단계 차이는 조금 가산
+    }
+  }
+
+  // 비슷한 성향
+  if (p1.petTemperament && p2.petTemperament) {
+    if (p1.petTemperament === p2.petTemperament) score += 0.1;
+    // 활발+장난꾸러기, 차분+독립적 = 호환
+    const compatible: Record<string, string[]> = {
+      calm: ['calm', 'independent'],
+      active: ['active', 'playful'],
+      playful: ['playful', 'active'],
+      independent: ['independent', 'calm'],
+    };
+    if (compatible[p1.petTemperament]?.includes(p2.petTemperament)) score += 0.05;
+  }
+
+  return Math.min(score, 1.0);
+}
+
 // ===== 재혼 호환성 (재혼 전용 추가 점수) =====
 function getRemarriageScore(user: UserProfile, candidate: UserProfile): number {
   if (user.matchType !== 'remarriage') return 0;
@@ -161,29 +248,31 @@ function getVerificationBonus(candidate: UserProfile): number {
 
 // ===== 가중치 (일반 매칭) =====
 const WEIGHTS_GENERAL = {
-  mbti: 0.20,
-  job: 0.15,      // 직업군 궁합 NEW
-  hobbies: 0.15,
-  region: 0.12,
-  education: 0.10,
-  income: 0.08,
+  mbti: 0.18,
+  job: 0.14,
+  hobbies: 0.13,
+  region: 0.10,
+  education: 0.08,
+  income: 0.07,
   age: 0.10,
   lifestyle: 0.05,
-  verification: 0.05, // 인증 보너스 NEW
+  pet: 0.10,        // 반려동물 궁합
+  verification: 0.05,
 };
 
 // ===== 가중치 (재혼 매칭) - 안정성/생활여건 비중 UP =====
 const WEIGHTS_REMARRIAGE = {
-  mbti: 0.12,
-  job: 0.15,
-  hobbies: 0.10,
-  region: 0.12,
-  education: 0.08,
+  mbti: 0.10,
+  job: 0.13,
+  hobbies: 0.08,
+  region: 0.10,
+  education: 0.07,
   income: 0.10,
-  age: 0.05,       // 재혼은 나이 비중 낮춤
-  lifestyle: 0.08,
+  age: 0.05,
+  lifestyle: 0.07,
+  pet: 0.08,        // 반려동물 궁합
   verification: 0.05,
-  remarriage: 0.15, // 재혼 호환성 NEW
+  remarriage: 0.17,
 };
 
 export function calculateMatch(user: UserProfile, candidate: UserProfile): MatchResult {
@@ -198,6 +287,8 @@ export function calculateMatch(user: UserProfile, candidate: UserProfile): Match
     user.drinking, candidate.drinking,
     user.smoking, candidate.smoking,
   );
+  const pet = getPetScore(user.pet, candidate.pet);
+  const saju = getSajuScore(user.birthInfo, candidate.birthInfo);
   const verification = getVerificationBonus(candidate);
   const remarriage = getRemarriageScore(user, candidate);
 
@@ -215,6 +306,7 @@ export function calculateMatch(user: UserProfile, candidate: UserProfile): Match
       income * w.income +
       age * w.age +
       lifestyle * w.lifestyle +
+      pet * w.pet +
       verification * w.verification +
       remarriage * w.remarriage
     );
@@ -228,6 +320,7 @@ export function calculateMatch(user: UserProfile, candidate: UserProfile): Match
       income * (w as typeof WEIGHTS_GENERAL).income +
       age * (w as typeof WEIGHTS_GENERAL).age +
       lifestyle * (w as typeof WEIGHTS_GENERAL).lifestyle +
+      pet * (w as typeof WEIGHTS_GENERAL).pet +
       verification * (w as typeof WEIGHTS_GENERAL).verification
     );
   }
@@ -246,6 +339,8 @@ export function calculateMatch(user: UserProfile, candidate: UserProfile): Match
       income: Math.round(income * 100),
       age: Math.round(age * 100),
       lifestyle: Math.round(lifestyle * 100),
+      pet: Math.round(pet * 100),
+      saju: Math.round(saju * 100),
       verification: Math.round(verification * 100),
       ...(isRemarriage ? { remarriage: Math.round(remarriage * 100) } : {}),
     },

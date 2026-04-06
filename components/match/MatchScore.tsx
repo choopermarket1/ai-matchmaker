@@ -16,17 +16,19 @@ const LABELS: Record<string, string> = {
   income: '소득 유사',
   age: '나이 적합',
   lifestyle: '생활패턴',
+  pet: '반려동물 궁합',
+  saju: '사주 궁합',
   verification: '인증 신뢰도',
   remarriage: '재혼 호환성',
 };
 
 const WEIGHTS_GENERAL: Record<string, number> = {
   mbti: 20, job: 15, hobbies: 15, region: 12,
-  education: 10, income: 8, age: 10, lifestyle: 5, verification: 5,
+  education: 8, income: 7, age: 10, lifestyle: 5, pet: 10, saju: 0, verification: 5,
 };
 const WEIGHTS_REMARRIAGE: Record<string, number> = {
   mbti: 12, job: 15, hobbies: 10, region: 12,
-  education: 8, income: 10, age: 5, lifestyle: 8, verification: 5, remarriage: 15,
+  education: 7, income: 10, age: 5, lifestyle: 7, pet: 8, saju: 0, verification: 5, remarriage: 17,
 };
 
 export default function MatchScore({ breakdown, totalScore }: Props) {

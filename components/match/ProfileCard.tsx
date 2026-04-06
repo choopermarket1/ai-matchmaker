@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import { MatchResult, REGION_LABELS, HOBBY_LABELS, JOB_CATEGORY_LABELS } from '@/lib/types';
+import { MatchResult, REGION_LABELS, HOBBY_LABELS, JOB_CATEGORY_LABELS, PET_TYPE_LABELS } from '@/lib/types';
 import { COLORS, SIZES, SHADOWS } from '@/constants/theme';
 import VerificationBadges from './VerificationBadges';
 
@@ -51,6 +51,13 @@ export default function ProfileCard({ match, onPress, onLike, isLiked }: Props) 
           <View style={styles.tag}>
             <Text style={styles.tagText}>{REGION_LABELS[user.region]}</Text>
           </View>
+          {user.pet.hasPet && (
+            <View style={[styles.tag, { backgroundColor: '#FFF3E0' }]}>
+              <Text style={[styles.tagText, { color: '#E65100' }]}>
+                🐾 {user.pet.petName} ({PET_TYPE_LABELS[user.pet.petType]})
+              </Text>
+            </View>
+          )}
         </View>
         <View style={styles.hobbies}>
           {user.hobbies.slice(0, 3).map((h) => (
